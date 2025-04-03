@@ -45,12 +45,35 @@ standard_error = sqrt(
 ((sum(armfold$LonR_fold[armfold$Sex == "Male"])/106)*(1-sum(armfold$LonR_fold[armfold$Sex == "Male"])/106))/106 + ((sum(armfold$LonR_fold[armfold$Sex == "Female"])/111)*(1-sum(armfold$LonR_fold[armfold$Sex == "Female"])/111))/111)
 
 sample_estimate = sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111
-
+sum(armfold$LonR_fold[armfold$Sex == "Male"])/106
+sum(armfold$LonR_fold[armfold$Sex == "Female"])/111
 upper_bound = sample_estimate + z*standard_error
 lower_bound = sample_estimate - z*standard_error
 print(c(lower_bound, upper_bound))
+round(sample_estimate, 4)
+standard_error
 ```
 
 Using R's built-in `r prop.test()` function, I found with 95% confidence that the true difference in the proportion of males and females who folded their left arm on top is between -0.0839 and 0.1804. Since the confidence interval captures 0, there is not enough evidence to suggest that there is a difference between the proportions of males and females who folded their left arm on top.
 
-I found very similar results using the formula for the construction of a confidence interval, $\theta\ =\ \hat\theta\ \pm\ z\ \times\ se(\hat\theta)$, where $se(\hat\theta)$ = $\sqrt()$
+I found very similar results using the formula for the construction of a confidence interval, $\theta\ \in \hat\theta\ \pm\ z\ \times\ se(\hat\theta)$, where $\hat\theta = \hat{p}_1-\hat{p}_2$ = `r round(sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111, 4)` and $se(\hat\theta)$ = $\sqrt((\frac{(\hat{p}_1)\ \times(1-\hat{p}_1)}{N_1})\ + (\frac{(\hat{p}_2)\ \times(1-\hat{p}_2)}{N_2})) = \sqrt((\frac{(0.4717)\ \times(1-0.4717)}{106})\ + (\frac{(0.4234)\ \times(1-0.4234)}{111})) \approx 0.0675$. I set $z = 1.96$ because I am constructing a 95% confidence interval, and the area across 1.96 standard errors of a normal curve covers about 95% of the curve's area. So $0.0483 + 1.96 \times 0.0675 = 0.1806$ and $0.0483 - 1.96 \times 0.0675 = -0.084$ gives us the upper and lower bound respectively of our 95% difference in proportions confidence interval, with very similar values to the confidence interval produced by the R function.
+
+## Part D
+
+If we were to construct 100 confidence intervals on this data, then we would expect that 95 of them would capture the true difference in proportion of males and females who folded their left arm on top.
+
+## Part E
+
+The standard error is the standard deviation of a sampling distribution of the sample estimate, that being the measured difference in proportion of males and females who folded their left arm on top.
+
+## Part F
+
+The sampling distribution here refers to the distribution of sample estimates of the difference in proportion of males and females who folded their left arm on top across many repeated samples. What varies from sample to sample is the difference in proportion, however sample size remains the same.
+
+## Part G
+
+The central limit theorem justifies using a normal distribution to approximate the sampling distribution of the sample difference in proportions. This is because it states that, regardless of the original population distribution, repeated sample estimates (thereby forming a sampling distribution) taken from a sufficiently large sample (which is true in this case, because the sample size is 217) will have the shape of a normal curve.
+
+## Part H
+
+I would tell them to
