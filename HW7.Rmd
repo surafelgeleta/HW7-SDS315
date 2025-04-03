@@ -1,0 +1,56 @@
+---
+title: "HW7"
+output: html_document
+---
+
+# Problem 1
+
+```{r echo=FALSE, warning = FALSE, message = FALSE}
+# Importing Package
+library(tidyverse)
+
+# Importing data
+armfold <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW7\\armfold.csv")
+turnout <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW7\\turnout.csv")
+```
+
+## Part A
+
+```{r echo=FALSE, warning = FALSE, message = FALSE, results = 'hide'}
+armfold %>% 
+  group_by(Sex) %>% 
+  summarize(Total = n(),
+            SamplePropLeft = sum(LonR_fold)/n())
+```
+
+There are 111 female students and 106 male students in the dataset. The sample proportion of males who folded their left arm on top is 0.472, while the sample proportion of females who folded their left arm on top is 0.423.
+
+# Part B
+
+The observed difference in the proportion of males and females who folded their left arm on top is around `r round(sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111, 3)`.
+
+# Part C
+
+```{r echo=FALSE, warning = FALSE, message = FALSE, results = 'hide'}
+# Using built-in function
+## First vector x is a vector of sample proportions for males and females
+## Second vector n is a vector of sample sizes for males and females
+prop.test(c(sum(armfold$LonR_fold[armfold$Sex == "Male"]), sum(armfold$LonR_fold[armfold$Sex == "Female"])), n = c(106, 111), correct = FALSE)
+
+# Calculating using formula
+# z-va
+z = 1.96
+
+standard_error = sqrt(
+((sum(armfold$LonR_fold[armfold$Sex == "Male"])/106)*(1-sum(armfold$LonR_fold[armfold$Sex == "Male"])/106))/106 + ((sum(armfold$LonR_fold[armfold$Sex == "Female"])/111)*(1-sum(armfold$LonR_fold[armfold$Sex == "Female"])/111))/111)
+
+sample_estimate = sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111
+
+upper_bound = sample_estimate + z*standard_error
+lower_bound = sample_estimate - z*standard_error
+print(c(lower_bound, upper_bound))
+```
+
+Using R's built-in `r prop.test()` function, I found with 95% confidence that the true difference in the proportion of males and females who folded their left arm on top is between -0.0839 and 0.1804. Since the confidence interval captures 0, there is not enough evidence to suggest that there is a difference between the proportions of males and females who folded their left arm on top.
+
+I found very similar results using the formula for the construction of a confidence interval, $\theta\ =\ \hat\theta\ \pm\ z\ \times\ se(\hat\theta)$, where $se(\hat\theta)$ = $\sqrt()$
