@@ -8,7 +8,8 @@ output: html_document
 ```{r echo=FALSE, warning = FALSE, message = FALSE}
 # Importing Package
 library(tidyverse)
-
+library(kableExtra)
+library(MatchIt)
 # Importing data
 armfold <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW7\\armfold.csv")
 turnout <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW7\\turnout.csv")
@@ -76,4 +77,135 @@ The central limit theorem justifies using a normal distribution to approximate t
 
 ## Part H
 
-I would tell them to
+I would tell them that the confidence interval containing 0 does not necessarily mean that there is no sex difference in proportion of folding arms with the left arm on top, but rather just means that the difference is not statistically significant.
+
+## Part I
+
+If this experiment was repeated many times with different random samples of students, the confidence interval would be different across samples because the sample difference in proportions may vary across samples. If a confidence level of 95% is used, then about 95% of the collection of these intervals should contain the true difference of proportions of males and females who fold their left arm on top.
+
+# Problem 2
+
+## Part A
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# Proportion of people who voted in 1998 by whether they received the GOTV call
+turnout %>% 
+  group_by(GOTV_call) %>% 
+  summarize(voted_in_1998 = sum(voted1998)/n(),
+            total = n())
+
+# 95% confidence interval of difference in proportions 
+prop.test(c(sum(turnout$voted1998[turnout$GOTV_call == 1]), sum(turnout$voted1998[turnout$GOTV_call == 0])), c(247, 10582))
+```
+
+The proportion of those who received a GOTV call and voted in 1998 was 0.6478. The sample proportion of those who didn't receive a GOTV call who voted in 1998 was 0.4442. A 95% confidence interval shows with 95% confidence that the true difference in proportions of GOTV call receivers and nonreceivers that voted in the 1998 election lies between 0.1411 and 0.2659.
+
+## Part B
+
+```{r echo=FALSE, message=FALSE, results='hide', warning=FALSE}
+ggplot(turnout, aes(x = factor(voted1998), y = AGE)) +
+  geom_boxplot() +
+  labs(x = "Voted in 1998?",
+       y = "Age",
+       title = "Age by Voting in 1998")
+
+ggplot(turnout, aes(x = factor(GOTV_call), y = AGE)) +
+  geom_boxplot() +
+  labs(x = "Received GOTV call?",
+       y = "Age",
+       title = "Age by GOTV call")
+```
+Within the sample, 1998 voters tended to be older than non-voters, and those who received GOTV calls tended to be older than non GOTV call receivers.
+
+```{r echo=FALSE, message=FALSE, results='hide', warning=FALSE}
+# Difference in means confidence interval
+t.test(AGE ~ voted1998, data = turnout)
+
+t.test(AGE ~ GOTV_call, data = turnout)
+```
+A 95% confidence interval demonstrates with 95% confidence that the true difference in mean age between those who did not vote in 1998 and those who did lies between -11.182 and -9.82 years. In addition, a 95% confidence interval demonstrates with 95% confidence that the true difference in mean age between those who did not receive a GOTV call and those who did lies between -11.395 and -6.369 years. Since neither of these confidence intervals contain 0, we have evidence to reject the null hypotheses that there is no difference in mean age between 1998 voters and non-voters, and that there is no difference in the mean age between GOTV call receivers and those who did not receive a call. So, since a voter's age may affect their likelihood of voting in 1998 and may also affect their likelihood of receiving a GOTV call, age is a confounder that keep us from identifying the causal effect of GOTV calls on voting propensity in 1998.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+turnout %>% 
+  group_by(MAJORPTY) %>% 
+  summarize(Voted_1998_Prop = sum(voted1998)/n(),
+            Received_GOTVcall_Prop = sum(GOTV_call)/n(),
+            Size = n())
+```
+
+Within the sample, people who were registered members of one of the two major U.S. political parties were more likely to have voted in 1998 and more likely to have received a GOTV call.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+prop.test(c(sum(turnout$voted1998[turnout$MAJORPTY == 1]), sum(turnout$voted1998[turnout$MAJORPTY == 0])), c(8079, 2750), correct = FALSE)
+
+prop.test(c(sum(turnout$GOTV_call[turnout$MAJORPTY == 1]), sum(turnout$GOTV_call[turnout$MAJORPTY == 0])), c(8079, 2750), correct = FALSE)
+```
+With 95% confidence, the true difference in the proportion of people who voted in the 1998 election between people registered with a major U.S. political party and people not registered with a major U.S. political party lies between 0.1114 and 0.1532. Also with 95% confidence, the true difference in the proportion of people who received a GOTV call between people registered with and not registered with a major U.S. political party lies between 0.0007053 and 0.012674. Since neither 95% confidence interval contains 0, there is evidence to reject the null hypothesis that there is no difference in the proportion of people who voted in 1998 among non-registered and registered party members, and to reject the null hypothesis that there is no difference in the proportion of people who received a GOTV call among non-registered and registered party members. So, since a person's major party registration status may affect their likelihood of voting in 1998 and of receiving a GOTV call, a person's registration status with a major U.S. political party is a confounder.
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+turnout1996 <- turnout %>% 
+  group_by(voted1996) %>% 
+  summarize(Voted_1998_Prop = sum(voted1998)/n(),
+            Received_GOTVcall_Prop = sum(GOTV_call)/n(),
+            Size = n())
+
+knitr::kable(turnout1996, col.names = c("Voted in 1996?", "Prop. Voted 1998", "Prop. Received GOTV Call", "Size")) %>% 
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+Within the sample, people who voted in 1996 had a higher likelihood of voting in 1998 and of receiving a GOTV call.
+
+```{r results = 'hide', echo = FALSE, message = FALSE, warning=FALSE}
+prop.test(c(sum(turnout$voted1998[turnout$voted1996 == 1]), sum(turnout$voted1998[turnout$voted1996 == 0])), c(5793, 5036), correct = FALSE)
+
+prop.test(c(sum(turnout$GOTV_call[turnout$voted1996 == 1]), sum(turnout$GOTV_call[turnout$voted1996 == 0])), c(5793, 5036), correct = FALSE)
+```
+With 95% confidence, the true difference in the proportion of people who voted in 1998 between people who did and didn't vote in 1996 lies between 0.3934 and 0.4273. Also with 95% confidence, the true difference in the proportion of people who received a GOTV call between people who did and didn't vote in 1996 lies between 0.0108 and 0.0218. Since neither confidence interval captures 0, there is evidence to reject the null hypotheses that there is no difference in the proportion of people who voted in 1998 among people who did and didn't vote in 1996, and that there is no difference in the proportion of people who received a GOTV call among people who did and didn't vote in 1996. Since voting in 1996 affects one's likelihood of voting in 1998 and of receiving a GOTV call, whether of not someone voted in 1996 is a confounder.
+
+## Part C
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+turnout_match = matchit(GOTV_call ~ voted1996 + MAJORPTY + AGE, data = turnout, ratio = 5)
+
+turnout_matched = match.data(turnout_match)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+matched_confounders <- turnout_matched %>% 
+  group_by(GOTV_call) %>% 
+  summarize(mean_age = mean(AGE),
+            prop_voted1996 = sum(voted1996)/n(),
+            prop_majorparty = sum(MAJORPTY)/n())
+
+knitr::kable(matched_confounders, col.names = c("GOTV Call Received?", "Mean Age", "Prop. Voted 1996", "Prop. Reg. w/ Major Party"), caption = "Summary Stats of Confounders by Treatment Value After Matching") %>% 
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+After matching, the three confounding variables age, voting in 1996, and registration status with a major U.S. political party appear to have similar values across the control and treatment groups.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# Confidence interval for the difference in mean age by control and treatment
+t.test(AGE ~ GOTV_call, data = turnout_matched)
+```
+With 95% confidence, the true difference in mean ages between people who did and did not receive GOTV calls in the matched dataset lies between -2.7604 and 2.6778 years. Since 0 is in this interval, we must fail to reject the null hypothesis that there is no difference in the mean ages between people who did and did not receive GOTV calls. This indicates that age is not a confounder in the matched dataset, since age does not appear to affect a person's likelihood to receive a GOTV call.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# 95% confidence interval for the difference in proportion of people who voted in 1996 between people who did and did not receive a GOTV call
+n1 = nrow(turnout_matched[turnout_matched$GOTV_call == 1,])
+n2 = nrow(turnout_matched[turnout_matched$GOTV_call == 0,])
+p1 = sum(turnout_matched$voted1996[turnout_matched$GOTV_call == 1])
+p2 = sum(turnout_matched$voted1996[turnout_matched$GOTV_call == 0])
+
+prop.test(c(p1,p2),c(n1,n2), correct = FALSE)
+```
+WIth 95% confidence, the true difference in the proportion of people who voted in the 1996 election between people who received and didn't receive a GOTV call in the matched dataset lies between -0.0618 and 0.0618. Since the confidence interval contains 0, we fail to reject the null hypothesis that there is no difference in the proportion of people who voted in 1996 between people who did and didn't receive a GOTV call in the matched dataset. This indicates that voting in 1996 is not a confounder in the matched dataset, since voting in 1996 doesn't appear to affect the likelihood of someone receiving a GOTV call.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+n01 = nrow(turnout_matched[turnout_matched$GOTV_call == 1,])
+n02 = nrow(turnout_matched[turnout_matched$GOTV_call == 0,])
+p01 = sum(turnout_matched$MAJORPTY[turnout_matched$GOTV_call == 1])
+p02 = sum(turnout_matched$MAJORPTY[turnout_matched$GOTV_call == 0])
+
+prop.test(c(p01,p02),c(n01,n02), correct = FALSE)
+```
+
