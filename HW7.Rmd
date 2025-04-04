@@ -1,6 +1,12 @@
 ---
 title: "HW7"
-output: html_document
+author: 
+  - "Surafel Geleta"
+  - "ssg2775"
+  - https://github.com/surafelgeleta/HW7-SDS315
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Problem 1
