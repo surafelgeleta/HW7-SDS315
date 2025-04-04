@@ -202,10 +202,35 @@ WIth 95% confidence, the true difference in the proportion of people who voted i
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
 n01 = nrow(turnout_matched[turnout_matched$GOTV_call == 1,])
+
 n02 = nrow(turnout_matched[turnout_matched$GOTV_call == 0,])
+
 p01 = sum(turnout_matched$MAJORPTY[turnout_matched$GOTV_call == 1])
+
 p02 = sum(turnout_matched$MAJORPTY[turnout_matched$GOTV_call == 0])
 
 prop.test(c(p01,p02),c(n01,n02), correct = FALSE)
 ```
+With 95% confidence, the true difference in the proportion of people registered with a major U.S. political party between people who did and did not receive a GOTV call lies between -0.06 and 0.05. So, we fail to reject the null hypothesis that there is no difference in the proportion of people registered with a major U.S. political party between people who did and did not receive a GOTV call in the matched dataset. Since registration status with a major U.S. political party does not appear to affect the likelihood of someone receiving a GOTV call, the former variable is not a confounder in the matched dataset.
 
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+turnout_matched %>% 
+  group_by(GOTV_call) %>% 
+  summarize(voted_in_1998 = sum(voted1998)/n(),
+            total = n())
+```
+
+In the matched dataset, the proportion of individuals who received a GOTV call that voted in 1998 is 0.6478, while the sample proportion of individuals who did not receive a GOTV call that voted in 1998 is 0.5692. 
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+prop1 = sum(turnout_matched$voted1998[turnout_matched$GOTV_call == 1])
+prop2 = sum(turnout_matched$voted1998[turnout_matched$GOTV_call == 0])
+size1 = nrow(turnout_matched[turnout_matched$GOTV_call == 1,])
+size2 = nrow(turnout_matched[turnout_matched$GOTV_call == 0,])
+
+# 95% confidence interval for the difference in proportions
+prop.test(c(prop1, prop2), c(size1, size2), correct = FALSE)
+```
+Using a 95% confidence interval, I find with 95% confidence that the true difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call lies between 0.01288 and 0.14420. Since this confidence interval does not contain 0, there is evidence to reject the null hypothesis that there is no difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call.
+
+However, it is still not possible to identify the causal effect of GOTV calls on voter propensity in 1998. I only matched on three confounding variables available in the dataset, and there is a high risk of omitted variable bias as a result of other potential confounders not being included in the dataset. These omitted variables might include sex, education, U.S. state of residence, 
