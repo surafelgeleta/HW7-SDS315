@@ -139,11 +139,16 @@ A 95% confidence interval demonstrates with 95% confidence that the true differe
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 # Proportion who voted in 1998 and received GOTV call by registration with major party
-turnout %>% 
+turnout_by_majorparty <- turnout %>% 
   group_by(MAJORPTY) %>% 
   summarize(Voted_1998_Prop = sum(voted1998)/n(),
             Received_GOTVcall_Prop = sum(GOTV_call)/n(),
             Size = n())
+
+# Constructing a kable table that shows the output above in a nice format
+knitr::kable(turnout_by_majorparty, col.names = c("Registered w/Major Party?", "Prop. Voted 1998", "Prop. Received GOTV Call", "Size"),
+             caption = "Registration with Major U.S. Party, 1998 Voting, and GOTV Calls") %>% 
+  kable_classic(full_width = F, html_font = "Cambria")
 ```
 
 Within the sample, people who were registered members of one of the two major U.S. political parties were more likely to have voted in 1998 and more likely to have received a GOTV call.
@@ -165,7 +170,8 @@ turnout1996 <- turnout %>%
             Size = n())
 
 # Constructing a kable table that shows the output above in a nice format
-knitr::kable(turnout1996, col.names = c("Voted in 1996?", "Prop. Voted 1998", "Prop. Received GOTV Call", "Size")) %>% 
+knitr::kable(turnout1996, col.names = c("Voted in 1996?", "Prop. Voted 1998", "Prop. Received GOTV Call", "Size"),
+             caption = "Turnout in 1996 Election, 1998 Voting, and GOTV Calls") %>% 
   kable_classic(full_width = F, html_font = "Cambria")
 ```
 
