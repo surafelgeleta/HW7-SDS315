@@ -24,6 +24,8 @@ turnout <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW7\\turnout
 ## Part A
 
 ```{r echo=FALSE, warning = FALSE, message = FALSE, results = 'hide'}
+# Looking at the proportion of people with left arm
+# folded on top grouped by Sex
 armfold %>% 
   group_by(Sex) %>% 
   summarize(Total = n(),
@@ -45,23 +47,25 @@ The observed difference in the proportion of males and females who folded their 
 prop.test(c(sum(armfold$LonR_fold[armfold$Sex == "Male"]), sum(armfold$LonR_fold[armfold$Sex == "Female"])), n = c(106, 111), correct = FALSE)
 
 # Calculating using formula
-# z-va
+# z-score for 95% confidence interval
 z = 1.96
 
+# Calculating standard error for a difference of proportions sampling distribution
 standard_error = sqrt(
 ((sum(armfold$LonR_fold[armfold$Sex == "Male"])/106)*(1-sum(armfold$LonR_fold[armfold$Sex == "Male"])/106))/106 + ((sum(armfold$LonR_fold[armfold$Sex == "Female"])/111)*(1-sum(armfold$LonR_fold[armfold$Sex == "Female"])/111))/111)
 
+# Calculating the sample estimate (difference in proportions)
 sample_estimate = sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111
-sum(armfold$LonR_fold[armfold$Sex == "Male"])/106
-sum(armfold$LonR_fold[armfold$Sex == "Female"])/111
+
+
+# Calculating the upper and lower bounds of the 95% diff-in-prop confidence interval according to formula
 upper_bound = sample_estimate + z*standard_error
 lower_bound = sample_estimate - z*standard_error
 print(c(lower_bound, upper_bound))
-round(sample_estimate, 4)
-standard_error
+
 ```
 
-Using R's built-in `r prop.test()` function, I found with 95% confidence that the true difference in the proportion of males and females who folded their left arm on top is between -0.0839 and 0.1804. Since the confidence interval captures 0, there is not enough evidence to suggest that there is a difference between the proportions of males and females who folded their left arm on top.
+Using R's built-in "prop.test()" function, I found with 95% confidence that the true difference in the proportion of males and females who folded their left arm on top is between -0.0839 and 0.1804. Since the confidence interval captures 0, there is not enough evidence to suggest that there is a difference between the proportions of males and females who folded their left arm on top.
 
 I found very similar results using the formula for the construction of a confidence interval, $\theta\ \in \hat\theta\ \pm\ z\ \times\ se(\hat\theta)$, where $\hat\theta = \hat{p}_1-\hat{p}_2$ = `r round(sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111, 4)` and $se(\hat\theta)$ = $\sqrt((\frac{(\hat{p}_1)\ \times(1-\hat{p}_1)}{N_1})\ + (\frac{(\hat{p}_2)\ \times(1-\hat{p}_2)}{N_2})) = \sqrt((\frac{(0.4717)\ \times(1-0.4717)}{106})\ + (\frac{(0.4234)\ \times(1-0.4234)}{111})) \approx 0.0675$. I set $z = 1.96$ because I am constructing a 95% confidence interval, and the area across 1.96 standard errors of a normal curve covers about 95% of the curve's area. So $0.0483 + 1.96 \times 0.0675 = 0.1806$ and $0.0483 - 1.96 \times 0.0675 = -0.084$ gives us the upper and lower bound respectively of our 95% difference in proportions confidence interval, with very similar values to the confidence interval produced by the R function.
 
@@ -109,12 +113,14 @@ The proportion of those who received a GOTV call and voted in 1998 was 0.6478. T
 ## Part B
 
 ```{r echo=FALSE, message=FALSE, results='hide', warning=FALSE}
+# Plots age against a binary voted_in_1998 variable
 ggplot(turnout, aes(x = factor(voted1998), y = AGE)) +
   geom_boxplot() +
   labs(x = "Voted in 1998?",
        y = "Age",
        title = "Age by Voting in 1998")
 
+# Plots age against a binary GOTV_call variable
 ggplot(turnout, aes(x = factor(GOTV_call), y = AGE)) +
   geom_boxplot() +
   labs(x = "Received GOTV call?",
@@ -132,6 +138,7 @@ t.test(AGE ~ GOTV_call, data = turnout)
 A 95% confidence interval demonstrates with 95% confidence that the true difference in mean age between those who did not vote in 1998 and those who did lies between -11.182 and -9.82 years. In addition, a 95% confidence interval demonstrates with 95% confidence that the true difference in mean age between those who did not receive a GOTV call and those who did lies between -11.395 and -6.369 years. Since neither of these confidence intervals contain 0, we have evidence to reject the null hypotheses that there is no difference in mean age between 1998 voters and non-voters, and that there is no difference in the mean age between GOTV call receivers and those who did not receive a call. So, since a voter's age may affect their likelihood of voting in 1998 and may also affect their likelihood of receiving a GOTV call, age is a confounder that keep us from identifying the causal effect of GOTV calls on voting propensity in 1998.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
+# Proportion who voted in 1998 and received GOTV call by registration with major party
 turnout %>% 
   group_by(MAJORPTY) %>% 
   summarize(Voted_1998_Prop = sum(voted1998)/n(),
@@ -142,6 +149,7 @@ turnout %>%
 Within the sample, people who were registered members of one of the two major U.S. political parties were more likely to have voted in 1998 and more likely to have received a GOTV call.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# 95% Difference in proportions confidence intervals
 prop.test(c(sum(turnout$voted1998[turnout$MAJORPTY == 1]), sum(turnout$voted1998[turnout$MAJORPTY == 0])), c(8079, 2750), correct = FALSE)
 
 prop.test(c(sum(turnout$GOTV_call[turnout$MAJORPTY == 1]), sum(turnout$GOTV_call[turnout$MAJORPTY == 0])), c(8079, 2750), correct = FALSE)
@@ -149,12 +157,14 @@ prop.test(c(sum(turnout$GOTV_call[turnout$MAJORPTY == 1]), sum(turnout$GOTV_call
 With 95% confidence, the true difference in the proportion of people who voted in the 1998 election between people registered with a major U.S. political party and people not registered with a major U.S. political party lies between 0.1114 and 0.1532. Also with 95% confidence, the true difference in the proportion of people who received a GOTV call between people registered with and not registered with a major U.S. political party lies between 0.0007053 and 0.012674. Since neither 95% confidence interval contains 0, there is evidence to reject the null hypothesis that there is no difference in the proportion of people who voted in 1998 among non-registered and registered party members, and to reject the null hypothesis that there is no difference in the proportion of people who received a GOTV call among non-registered and registered party members. So, since a person's major party registration status may affect their likelihood of voting in 1998 and of receiving a GOTV call, a person's registration status with a major U.S. political party is a confounder.
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Proportion who voted in 1998 and received GOTV call according to whether or not they voted in 1996
 turnout1996 <- turnout %>% 
   group_by(voted1996) %>% 
   summarize(Voted_1998_Prop = sum(voted1998)/n(),
             Received_GOTVcall_Prop = sum(GOTV_call)/n(),
             Size = n())
 
+# Constructing a kable table that shows the output above in a nice format
 knitr::kable(turnout1996, col.names = c("Voted in 1996?", "Prop. Voted 1998", "Prop. Received GOTV Call", "Size")) %>% 
   kable_classic(full_width = F, html_font = "Cambria")
 ```
@@ -162,6 +172,7 @@ knitr::kable(turnout1996, col.names = c("Voted in 1996?", "Prop. Voted 1998", "P
 Within the sample, people who voted in 1996 had a higher likelihood of voting in 1998 and of receiving a GOTV call.
 
 ```{r results = 'hide', echo = FALSE, message = FALSE, warning=FALSE}
+# 95% difference in proportion confidence intervals
 prop.test(c(sum(turnout$voted1998[turnout$voted1996 == 1]), sum(turnout$voted1998[turnout$voted1996 == 0])), c(5793, 5036), correct = FALSE)
 
 prop.test(c(sum(turnout$GOTV_call[turnout$voted1996 == 1]), sum(turnout$GOTV_call[turnout$voted1996 == 0])), c(5793, 5036), correct = FALSE)
@@ -171,18 +182,22 @@ With 95% confidence, the true difference in the proportion of people who voted i
 ## Part C
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# Matching on voted1996, party registration, age
 turnout_match = matchit(GOTV_call ~ voted1996 + MAJORPTY + AGE, data = turnout, ratio = 5)
 
+# Creating a new object consisting of matched data
 turnout_matched = match.data(turnout_match)
 ```
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
+# Creating a new object with summary statistics of each matched variable
 matched_confounders <- turnout_matched %>% 
   group_by(GOTV_call) %>% 
   summarize(mean_age = mean(AGE),
             prop_voted1996 = sum(voted1996)/n(),
             prop_majorparty = sum(MAJORPTY)/n())
 
+# Kable table with nice formatted version of the object above
 knitr::kable(matched_confounders, col.names = c("GOTV Call Received?", "Mean Age", "Prop. Voted 1996", "Prop. Reg. w/ Major Party"), caption = "Summary Stats of Confounders by Treatment Value After Matching") %>% 
   kable_classic(full_width = F, html_font = "Cambria")
 ```
@@ -207,6 +222,7 @@ prop.test(c(p1,p2),c(n1,n2), correct = FALSE)
 WIth 95% confidence, the true difference in the proportion of people who voted in the 1996 election between people who received and didn't receive a GOTV call in the matched dataset lies between -0.0618 and 0.0618. Since the confidence interval contains 0, we fail to reject the null hypothesis that there is no difference in the proportion of people who voted in 1996 between people who did and didn't receive a GOTV call in the matched dataset. This indicates that voting in 1996 is not a confounder in the matched dataset, since voting in 1996 doesn't appear to affect the likelihood of someone receiving a GOTV call.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# 95% diff-in-prop confidence interval for the difference in proportions of GOTV calls by party registration
 n01 = nrow(turnout_matched[turnout_matched$GOTV_call == 1,])
 
 n02 = nrow(turnout_matched[turnout_matched$GOTV_call == 0,])
@@ -220,6 +236,7 @@ prop.test(c(p01,p02),c(n01,n02), correct = FALSE)
 With 95% confidence, the true difference in the proportion of people registered with a major U.S. political party between people who did and did not receive a GOTV call lies between -0.06 and 0.05. So, we fail to reject the null hypothesis that there is no difference in the proportion of people registered with a major U.S. political party between people who did and did not receive a GOTV call in the matched dataset. Since registration status with a major U.S. political party does not appear to affect the likelihood of someone receiving a GOTV call, the former variable is not a confounder in the matched dataset.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+# Looking at the proportion of individuals who voted in 1998 by GOTV call in the matched dataset
 turnout_matched %>% 
   group_by(GOTV_call) %>% 
   summarize(voted_in_1998 = sum(voted1998)/n(),
@@ -239,4 +256,4 @@ prop.test(c(prop1, prop2), c(size1, size2), correct = FALSE)
 ```
 Using a 95% confidence interval, I find with 95% confidence that the true difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call lies between 0.01288 and 0.14420. Since this confidence interval does not contain 0, there is evidence to reject the null hypothesis that there is no difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call.
 
-However, it is still not possible to identify the causal effect of GOTV calls on voter propensity in 1998. I only matched on three confounding variables available in the dataset, and there is a high risk of omitted variable bias as a result of other potential confounders not being included in the dataset. These omitted variables might include sex, education, U.S. state of residence, 
+However, it is still not possible to identify the causal effect of GOTV calls on voter propensity in 1998. I only matched on three confounding variables available in the dataset, and there is a high risk of omitted variable bias as a result of other potential confounders not being included in the dataset. These omitted variables might include sex, education and U.S. state of residence.
