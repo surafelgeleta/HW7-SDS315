@@ -34,11 +34,11 @@ armfold %>%
 
 There are 111 female students and 106 male students in the dataset. The sample proportion of males who folded their left arm on top is 0.472, while the sample proportion of females who folded their left arm on top is 0.423.
 
-# Part B
+## Part B
 
 The observed difference in the proportion of males and females who folded their left arm on top is around `r round(sum(armfold$LonR_fold[armfold$Sex == "Male"])/106 - sum(armfold$LonR_fold[armfold$Sex == "Female"])/111, 3)`.
 
-# Part C
+## Part C
 
 ```{r echo=FALSE, warning = FALSE, message = FALSE, results = 'hide'}
 # Using built-in function
@@ -79,7 +79,7 @@ The standard error is the standard deviation of a sampling distribution of the s
 
 ## Part F
 
-The sampling distribution here refers to the distribution of sample estimates of the difference in proportion of males and females who folded their left arm on top across many repeated samples. What varies from sample to sample is the difference in proportion, however sample size remains the same.
+The sampling distribution here refers to the distribution of sample estimates of the difference in proportion of males and females who folded their left arm on top across many repeated samples. What varies from sample to sample is the sample estimate of the difference in proportion, however the population difference in proportions and sample size remains the same.
 
 ## Part G
 
@@ -262,4 +262,4 @@ prop.test(c(prop1, prop2), c(size1, size2), correct = FALSE)
 ```
 Using a 95% confidence interval, I find with 95% confidence that the true difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call lies between 0.01288 and 0.14420. Since this confidence interval does not contain 0, there is evidence to reject the null hypothesis that there is no difference in the proportions of people who voted in 1998 between people who did and did not receive a GOTV call.
 
-However, it is still not possible to identify the causal effect of GOTV calls on voter propensity in 1998. I only matched on three confounding variables available in the dataset, and there is a high risk of omitted variable bias as a result of other potential confounders not being included in the dataset. These omitted variables might include sex, education and U.S. state of residence.
+The 95% difference in proportions confidence interval of the matched data contains smaller values than the confidence interval for the unmatched data, suggesting that the difference in the proportion of people who voted in 1998 between people who did and did not receive a GOTV call is smaller when matching for certain confounders. However, it is still not possible to identify the causal effect of GOTV calls on voter propensity in 1998. I only matched on three confounding variables available in the dataset, and there is a high risk of omitted variable bias as a result of other potential confounders not being included in the dataset. These omitted variables might include sex, education and U.S. state of residence. 
